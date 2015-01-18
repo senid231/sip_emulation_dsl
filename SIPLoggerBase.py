@@ -1,0 +1,4 @@
+
+
+class SIPLoggerBase(object):
+    pass
