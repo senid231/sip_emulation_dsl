@@ -1,4 +1,4 @@
-import configparser
+from ConfigParser import ConfigParser
 
 
 class SIPConfigBase(object):
@@ -7,7 +7,7 @@ class SIPConfigBase(object):
     """
 
     def __init__(self, filepath):
-        self.__cfg = configparser.ConfigParser()
+        self.__cfg = ConfigParser()
         self.__cfg.read(filepath)
 
     def __getitem__(self, item):
@@ -19,3 +19,16 @@ class SIPConfigBase(object):
             section = 'DEFAULT'
 
         return self.__cfg.get(section, option, fallback=None)
+
+    def get(self, section, option):
+        if section is None:
+            section = 'default'
+
+        value = self.__cfg.get(section, option, fallback=None)
+
+        if value in ['True', 'true']:
+            value = True
+        elif value in ['False', 'false']:
+            value = False
+
+        return value
