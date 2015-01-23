@@ -20,15 +20,29 @@ class SIPConfigBase(object):
 
         return self.__cfg.get(section, option, fallback=None)
 
-    def get(self, section, option):
+    @staticmethod
+    def check_section(section):
         if section is None:
-            section = 'default'
+            return 'default'
+        else:
+            return section
 
-        value = self.__cfg.get(section, option, fallback=None)
+    def get(self, section, option):
+        section = self.check_section(section)
+        return self.__cfg.get(section, option, fallback=None)
 
-        if value in ['True', 'true']:
-            value = True
-        elif value in ['False', 'false']:
-            value = False
+    def get_boolean(self, section, option):
+        section = self.check_section(section)
+        return self.__cfg.getboolean(section, option, fallback=None)
 
-        return value
+    def get_float(self, section, option):
+        section = self.check_section(section)
+        return self.__cfg.getfloat(section, option, fallback=None)
+
+    def get_int(self, section, option):
+        section = self.check_section(section)
+        return self.__cfg.getint(section, option, fallback=None)
+
+    def get_list(self, section, option):
+        section = self.check_section(section)
+        return self.__cfg.get(section, option, fallback='').split(',')
