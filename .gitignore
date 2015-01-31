@@ -1,5 +1,13 @@
-.idea
-__pycache__/
+/.idea
+
+/__pycache__/
+/*.pyc
+/.*py~
+
+/*.log
+
+/test_serv.py
+/test_cli.py
 
 
 
