@@ -6,6 +6,7 @@ import grp
 import signal
 from daemon import DaemonContext
 from daemon.pidlockfile import PIDLockFile
+import logging
 
 from SIPClientBase import SIPClientBase
 from SIPConfigBase import SIPConfigBase
@@ -45,14 +46,25 @@ if __name__ == '__main__':
         sys.exit(2)
 
     config = SIPConfigBase(config_path)
+    logger = logging.getLogger('sip_client')
+    logger.addHandler(
+        logging.FileHandler(
+            filename=config.get('logging', 'filename'),
+            mode='a+',
+            encoding=None,
+            delay=0
+        )
+    )
     client = SIPClientBase(
         host=config.get('client', 'host'),
         port=config.get('client', 'port'),
-        use_ssl=config.get('client', 'use_ssl'),
+        use_ssl=config.get_boolean('client', 'use_ssl'),
         auth_key=config.get('client', 'auth_key'),
-        logfile=open(config.get('client', 'logfile'), 'a+', 0),
-        pidfile=config.get('client', 'pidfile')
+        pidfile=config.get('client', 'pidfile'),
+        logger=logger
     )
+
+    client.set_logger(logger)
 
     if client.use_ssl():
         client.set_ssl_attrs(
@@ -60,7 +72,9 @@ if __name__ == '__main__':
             keyfile=config.get('ssl', 'key')
         )
 
-    if is_daemon:
+    if not is_daemon:
+        client.run()
+    else:
         daemon_context = DaemonContext(
             chroot_directory=config.get('daemon', 'chroot_directory'),
             working_directory=config.get('daemon', 'working_directory'),
@@ -68,18 +82,18 @@ if __name__ == '__main__':
             uid=pwd.getpwnam(config.get('daemon', 'uid')).pw_uid,
             gid=grp.getgrnam(config.get('daemon', 'gid')).gr_gid,
             prevent_core=config.get('daemon', 'prevent_core'),
-            detach_process=config.get('daemon', 'detach_process'),
-            files_preserve=config.get('daemon', 'files_preserve'),
+            detach_process=config.get_boolean('daemon', 'detach_process'),
             pidfile=PIDLockFile(config.get('daemon', 'lockfile'))
         )
         daemon_context.stdout = open(config.get('daemon', 'logfile'), 'a+', 0)
         daemon_context.stderr = daemon_context.stdout
-        daemon_context.files_preserve(client.logfile().fileno())
+        daemon_context.files_preserve(client.log.handlers)
         daemon_context.signal_map = {
             signal.SIGTERM: client.sigterm_handler()
         }
         with daemon_context:
-            client.run()
-
-    else:
-        client.run()
+            try:
+                client.create_pidfile()
+                client.run()
+            finally:
+                client.delete_pidfile()
