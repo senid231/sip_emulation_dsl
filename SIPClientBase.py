@@ -12,7 +12,7 @@ class SIPClientBase(SIPEndpointBase):
     """
 
     def __init__(self, host, port, use_ssl, auth_key, logger, pidfile):
-        SIPEndpointBase.__init__()
+        SIPEndpointBase.__init__(self)
 
         self.is_terminated = False
         self.is_disconnected = False

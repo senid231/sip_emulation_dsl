@@ -29,4 +29,4 @@ class ExceptionParser(object):
         print('Value %s' % self.value)
 
     def printable(self):
-        return "Error <%s>: %s\n%s:%s\n%s" % (self.type, self.value, self.filename, self.line_number, self.line)
+        return "Error <%s>: %s\n>%s:%s\n>>%s" % (self.type, self.value, self.filename, self.line_number, self.line)

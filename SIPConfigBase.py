@@ -1,25 +1,17 @@
 from ConfigParser import ConfigParser, NoOptionError
 
+from ExceptionParser import ExceptionParser
+
 
 class SIPConfigBase(object):
     """
     SIPConfigBase
     """
-    DEFAULT_SECTION = 'DEAFULT'
+    DEFAULT_SECTION = 'DEFAULT'
 
-    def __init__(self, filepath):
+    def __init__(self, file_path):
         self.__cfg = ConfigParser()
-        self.__cfg.read(filepath)
-
-    def __getitem__(self, item):
-        items = item.split(':')
-        option = items[-1]
-        if len(items) > 1:
-            section = items[1]
-        else:
-            section = self.DEFAULT_SECTION
-
-        return self.__cfg.get(section, option, fallback=None)
+        self.__cfg.read(file_path)
 
     @staticmethod
     def check_section(section):
@@ -30,45 +22,52 @@ class SIPConfigBase(object):
 
     def get(self, section, option):
         section = self.check_section(section)
-        ret = None
-        try:
-            ret = self.__cfg.get(section, option)
-        except NoOptionError as e:
-            print(e)
-        return ret
+
+        if self.has_option(section, option):
+            return self.__cfg.get(section, option)
+        else:
+            return None
 
     def get_boolean(self, section, option):
         section = self.check_section(section)
-        ret = None
-        try:
-            ret = self.__cfg.getboolean(section, option)
-        except NoOptionError as e:
-            print(e)
-        return ret
+
+        if self.has_option(section, option):
+            return self.__cfg.getboolean(section, option)
+        else:
+            return None
 
     def get_float(self, section, option):
         section = self.check_section(section)
-        ret = None
-        try:
-            ret = self.__cfg.getfloat(section, option)
-        except NoOptionError as e:
-            print(e)
-        return ret
+
+        if self.has_option(section, option):
+            return self.__cfg.getfloat(section, option)
+        else:
+            return None
 
     def get_int(self, section, option):
         section = self.check_section(section)
-        ret = None
-        try:
-            ret = self.__cfg.getint(section, option)
-        except NoOptionError as e:
-            print(e)
-        return ret
+
+        if self.has_option(section, option):
+            return self.__cfg.getint(section, option)
+        else:
+            return None
 
     def get_list(self, section, option):
         section = self.check_section(section)
-        ret = []
-        try:
-            ret = self.__cfg.get(section, option).split(',')
-        except NoOptionError as e:
-            print(e)
-        return ret
+
+        if self.has_option(section, option):
+            return self.__cfg.getboolean(section, option).split(',')
+        else:
+            return None
+
+    def has_section(self, section):
+        self.__cfg.has_section(section)
+
+    def has_option(self, section, option):
+        self.__cfg.has_option(section, option)
+
+    def options(self, section):
+        self.__cfg.options(section)
+
+    def sections(self):
+        self.__cfg.sections()
