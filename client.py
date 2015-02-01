@@ -10,6 +10,7 @@ import logging
 
 from SIPClientBase import SIPClientBase
 from SIPConfigBase import SIPConfigBase
+from SIPLoggerBase import set_simple_logger
 
 
 def usage():
@@ -92,6 +93,10 @@ if __name__ == '__main__':
             signal.SIGTERM: client.sigterm_handler()
         }
         with daemon_context:
+            client.set_logger(set_simple_logger(
+                name='sip_client',
+                filename=config.get('logging', 'filename')
+            ))
             try:
                 client.create_pidfile()
                 client.run()
