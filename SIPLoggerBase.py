@@ -1,4 +1,5 @@
 import logging
+import time
 
 DEFAULT_FORMAT = '[%(name)s] [%(levelname)s] [%(asctime)s] %(message)s'
 DEFAULT_DATE_FORMAT = '%m-%d %H:%M'
@@ -13,6 +14,7 @@ def set_simple_logger(
         log_level=DEFAULT_LEVEL
 ):
     formatter = logging.Formatter(fmt=fmt, datefmt=date_fmt)
+    formatter.converter = time.gmtime  # set time to GMT (UTC)
     file_handler = logging.FileHandler(filename=filename, mode='a+', encoding='UTF-8', delay=0)
     file_handler.setLevel(log_level)
     file_handler.setFormatter(formatter)
